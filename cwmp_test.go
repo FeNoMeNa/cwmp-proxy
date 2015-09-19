@@ -57,10 +57,10 @@ func TestGetConnectionUrl(t *testing.T) {
 		{
 			`
 				<ParameterValueStruct>
-		        	<Name>InternetGatewayDevice.ManagementServer.ConnectionRequestURL</Name>
-		        	<Value xsi:type="xsd:string">http://8.8.8.8:7547</Value>
-		       	</ParameterValueStruct>
-	       	`,
+					<Name>InternetGatewayDevice.ManagementServer.ConnectionRequestURL</Name>
+					<Value xsi:type="xsd:string">http://8.8.8.8:7547</Value>
+				</ParameterValueStruct>
+			`,
 
 			`http://8.8.8.8:7547`,
 		},
@@ -68,10 +68,10 @@ func TestGetConnectionUrl(t *testing.T) {
 		{
 			`
 				<ParameterValueStruct>
-		       		<Name>Device.ManagementServer.ConnectionRequestURL</Name>
-		       		<Value xsi:type="xsd:string">http://7.7.7.7:7547</Value>
-		       	</ParameterValueStruct>
-	       	`,
+					<Name>Device.ManagementServer.ConnectionRequestURL</Name>
+					<Value xsi:type="xsd:string">http://7.7.7.7:7547</Value>
+				</ParameterValueStruct>
+			`,
 
 			`http://7.7.7.7:7547`,
 		},
