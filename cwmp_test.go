@@ -38,13 +38,12 @@ func TestReplaceConnectionUrl(t *testing.T) {
 		},
 	}
 
-	cwmp := newCwmpMessage("localhost:8085")
-
 	for _, c := range cases {
 		got, _ := http.NewRequest("POST", "http://github.com/", c.in)
 		want, _ := http.NewRequest("POST", "http://github.com/", c.want)
 
-		cwmp.replaceConnectionUrl(got)
+		cwmp := newCwmpMessage(got)
+		cwmp.replaceConnectionUrl("localhost:8085")
 
 		compareRequests(t, want, got)
 	}

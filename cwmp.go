@@ -9,15 +9,15 @@ import (
 )
 
 type cwmpMessage struct {
-	host string
+	req *http.Request
 }
 
-func newCwmpMessage(host string) *cwmpMessage {
-	return &cwmpMessage{host}
+func newCwmpMessage(req *http.Request) *cwmpMessage {
+	return &cwmpMessage{req}
 }
 
-func (i *cwmpMessage) replaceConnectionUrl(request *http.Request) {
-	content, err := ioutil.ReadAll(request.Body)
+func (i *cwmpMessage) replaceConnectionUrl(host string) {
+	content, err := ioutil.ReadAll(i.req.Body)
 
 	if err != nil {
 		return
@@ -28,15 +28,15 @@ func (i *cwmpMessage) replaceConnectionUrl(request *http.Request) {
 	url, err := getConnectionUrl(message)
 
 	if err == nil {
-		newUrl := fmt.Sprintf("http://%s/client?origin=%s", i.host, url)
+		newUrl := fmt.Sprintf("http://%s/client?origin=%s", host, url)
 		message = strings.Replace(message, url, newUrl, 1)
 	}
 
 	length := len(message)
 	buffer := bytes.NewReader([]byte(message))
 
-	request.Body = ioutil.NopCloser(buffer)
-	request.ContentLength = int64(length)
+	i.req.Body = ioutil.NopCloser(buffer)
+	i.req.ContentLength = int64(length)
 }
 
 func getConnectionUrl(message string) (string, error) {

@@ -33,8 +33,8 @@ func (p *Proxy) Start() {
 func (p *Proxy) handler() http.Handler {
 	return &httputil.ReverseProxy{
 		Director: func(req *http.Request) {
-			cwmp := newCwmpMessage(req.Host)
-			cwmp.replaceConnectionUrl(req)
+			cwmp := newCwmpMessage(req)
+			cwmp.replaceConnectionUrl(req.Host)
 
 			req.URL.Scheme = p.backend.Scheme
 			req.URL.Host = p.backend.Host
