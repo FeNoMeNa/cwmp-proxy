@@ -30,7 +30,7 @@ func TestProxyHandler(t *testing.T) {
 	}
 
 	for _, c := range cases {
-		server := fakeBackendServer(func(w http.ResponseWriter, r *http.Request) {
+		server := fakeHttpServer(func(w http.ResponseWriter, r *http.Request) {
 			compareReaders(t, c.want, r.Body)
 		})
 
@@ -44,7 +44,7 @@ func TestProxyHandler(t *testing.T) {
 }
 
 func TestWakeupHandler(t *testing.T) {
-	server := fakeBackendServer()
+	server := fakeHttpServer()
 
 	cases := []struct {
 		url  string
@@ -99,7 +99,7 @@ func TestProxyAddressGenerating(t *testing.T) {
 	}
 }
 
-func fakeBackendServer(callbacks ...func(w http.ResponseWriter, r *http.Request)) *httptest.Server {
+func fakeHttpServer(callbacks ...func(w http.ResponseWriter, r *http.Request)) *httptest.Server {
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		for _, callback := range callbacks {
 			callback(w, r)
