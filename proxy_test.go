@@ -14,8 +14,23 @@ func TestProxyHandler(t *testing.T) {
 		in, want io.Reader
 	}{
 		{
-			bytes.NewReader([]byte(`<ParameterValueStruct><Name>InternetGatewayDevice.ManagementServer.ConnectionRequestURL</Name><Value xsi:type="xsd:string">http://8.8.8.8:7547</Value></ParameterValueStruct>`)),
-			bytes.NewReader([]byte(`<ParameterValueStruct><Name>InternetGatewayDevice.ManagementServer.ConnectionRequestURL</Name><Value xsi:type="xsd:string">http://github.com/client?origin=http://8.8.8.8:7547</Value></ParameterValueStruct>`)),
+			bytes.NewReader([]byte(
+				`
+					<ParameterValueStruct>
+						<Name>InternetGatewayDevice.ManagementServer.ConnectionRequestURL</Name>
+						<Value xsi:type="xsd:string">http://8.8.8.8:7547</Value>
+					</ParameterValueStruct>
+				`,
+			)),
+
+			bytes.NewReader([]byte(
+				`
+					<ParameterValueStruct>
+						<Name>InternetGatewayDevice.ManagementServer.ConnectionRequestURL</Name>
+						<Value xsi:type="xsd:string">http://github.com/client?origin=http://8.8.8.8:7547</Value>
+					</ParameterValueStruct>
+				`,
+			)),
 		},
 
 		{

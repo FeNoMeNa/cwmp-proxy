@@ -14,8 +14,23 @@ func TestProxyServer(t *testing.T) {
 		cpeWokenup = true
 	})
 
-	in := bytes.NewReader([]byte(`<ParameterValueStruct><Name>InternetGatewayDevice.ManagementServer.ConnectionRequestURL</Name><Value xsi:type="xsd:string">` + cpe.URL + `</Value></ParameterValueStruct>`))
-	want := bytes.NewReader([]byte(`<ParameterValueStruct><Name>InternetGatewayDevice.ManagementServer.ConnectionRequestURL</Name><Value xsi:type="xsd:string">http://localhost:1717/client?origin=` + cpe.URL + `</Value></ParameterValueStruct>`))
+	in := bytes.NewReader([]byte(
+		`
+			<ParameterValueStruct>
+				<Name>InternetGatewayDevice.ManagementServer.ConnectionRequestURL</Name>
+				<Value xsi:type="xsd:string">` + cpe.URL + `</Value>
+			</ParameterValueStruct>
+		`,
+	))
+
+	want := bytes.NewReader([]byte(
+		`
+			<ParameterValueStruct>
+				<Name>InternetGatewayDevice.ManagementServer.ConnectionRequestURL</Name>
+				<Value xsi:type="xsd:string">http://localhost:1717/client?origin=` + cpe.URL + `</Value>
+			</ParameterValueStruct>
+		`,
+	))
 
 	backend := fakeHttpServer(func(w http.ResponseWriter, r *http.Request) {
 		compareReaders(t, want, r.Body)

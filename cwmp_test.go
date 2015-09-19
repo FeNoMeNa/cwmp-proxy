@@ -13,8 +13,23 @@ func TestReplaceConnectionUrl(t *testing.T) {
 		in, want io.Reader
 	}{
 		{
-			bytes.NewReader([]byte(`<ParameterValueStruct><Name>InternetGatewayDevice.ManagementServer.ConnectionRequestURL</Name><Value xsi:type="xsd:string">http://8.8.8.8:7547</Value></ParameterValueStruct>`)),
-			bytes.NewReader([]byte(`<ParameterValueStruct><Name>InternetGatewayDevice.ManagementServer.ConnectionRequestURL</Name><Value xsi:type="xsd:string">http://localhost:8085/client?origin=http://8.8.8.8:7547</Value></ParameterValueStruct>`)),
+			bytes.NewReader([]byte(
+				`
+					<ParameterValueStruct>
+						<Name>InternetGatewayDevice.ManagementServer.ConnectionRequestURL</Name>
+						<Value xsi:type="xsd:string">http://8.8.8.8:7547</Value>
+					</ParameterValueStruct>
+				`,
+			)),
+
+			bytes.NewReader([]byte(
+				`
+					<ParameterValueStruct>
+						<Name>InternetGatewayDevice.ManagementServer.ConnectionRequestURL</Name>
+						<Value xsi:type="xsd:string">http://localhost:8085/client?origin=http://8.8.8.8:7547</Value>
+					</ParameterValueStruct>
+				`,
+			)),
 		},
 
 		{
@@ -40,19 +55,23 @@ func TestGetConnectionUrl(t *testing.T) {
 		in, want string
 	}{
 		{
-			`<ParameterValueStruct>
-	        	<Name>InternetGatewayDevice.ManagementServer.ConnectionRequestURL</Name>
-	        	<Value xsi:type="xsd:string">http://8.8.8.8:7547</Value>
-	       	</ParameterValueStruct>`,
+			`
+				<ParameterValueStruct>
+		        	<Name>InternetGatewayDevice.ManagementServer.ConnectionRequestURL</Name>
+		        	<Value xsi:type="xsd:string">http://8.8.8.8:7547</Value>
+		       	</ParameterValueStruct>
+	       	`,
 
 			`http://8.8.8.8:7547`,
 		},
 
 		{
-			`<ParameterValueStruct>
-	       		<Name>Device.ManagementServer.ConnectionRequestURL</Name>
-	       		<Value xsi:type="xsd:string">http://7.7.7.7:7547</Value>
-	       	</ParameterValueStruct>`,
+			`
+				<ParameterValueStruct>
+		       		<Name>Device.ManagementServer.ConnectionRequestURL</Name>
+		       		<Value xsi:type="xsd:string">http://7.7.7.7:7547</Value>
+		       	</ParameterValueStruct>
+	       	`,
 
 			`http://7.7.7.7:7547`,
 		},
