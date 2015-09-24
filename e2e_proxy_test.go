@@ -8,10 +8,34 @@ import (
 )
 
 func TestProxyServer(t *testing.T) {
-	cpeWokenup := false
+	c := struct {
+		username, password string
+		cpeWokenup         bool
+	}{
+		"FeNoMeNa", "12345678", false,
+	}
 
 	cpe := fakeHttpServer(func(w http.ResponseWriter, r *http.Request) {
-		cpeWokenup = true
+		username, password, ok := r.BasicAuth()
+
+		if !ok {
+			w.Header().Add("WWW-Authenticate", `Basic realm="wakeup-test"`)
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+
+		if c.username != username {
+			t.Errorf("expected username: %v", c.username)
+			t.Errorf("     got username: %v", username)
+
+		}
+
+		if c.password != password {
+			t.Errorf("expected password: %v", c.password)
+			t.Errorf("     got password: %v", password)
+		}
+
+		c.cpeWokenup = true
 	})
 
 	in := bytes.NewReader([]byte(
@@ -34,7 +58,10 @@ func TestProxyServer(t *testing.T) {
 
 	backend := fakeHttpServer(func(w http.ResponseWriter, r *http.Request) {
 		compareReaders(t, want, r.Body)
-		sendWakeupRequest(cpe.URL)
+
+		url := "http://localhost:1717/client?origin=" + cpe.URL
+
+		sendWakeupRequest(url, c.username, c.password)
 	})
 
 	// Let's hope this port to be free
@@ -42,7 +69,7 @@ func TestProxyServer(t *testing.T) {
 
 	sendInform("http://localhost:1717", in)
 
-	if cpeWokenup == false {
+	if c.cpeWokenup == false {
 		t.Errorf("The CPE is not woken up!")
 	}
 }
@@ -56,6 +83,9 @@ func sendInform(url string, inform io.Reader) {
 	http.Post(url, "text/xml", inform)
 }
 
-func sendWakeupRequest(origin string) {
-	http.Get("http://localhost:1717/client?origin=" + origin)
+func sendWakeupRequest(url, username, password string) {
+	request, _ := http.NewRequest("GET", url, nil)
+	request.SetBasicAuth(username, password)
+
+	http.DefaultClient.Do(request)
 }

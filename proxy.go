@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/FeNoMeNa/goha"
 	"log"
 	"net/http"
 	"net/http/httputil"
@@ -42,7 +43,7 @@ func NewProxy(port int, backend string) *Proxy {
 
 func (p *Proxy) Start() error {
 	http.Handle("/", p.handler())
-	http.Handle("/client", wakeupHandler())
+	http.Handle("/client", basicAuthHandler(wakeupHandler))
 
 	return http.ListenAndServe(p.address(), nil)
 }
@@ -59,25 +60,35 @@ func (p *Proxy) handler() http.Handler {
 	}
 }
 
-func wakeupHandler() http.HandlerFunc {
+func wakeupHandler(username, password string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		origin := r.FormValue("origin")
 
 		if origin == "" {
-			log.Println("The origin connection URL should be provided!")
 			http.Error(w, "The origin connection URL should be provided!", http.StatusBadRequest)
 			return
 		}
 
-		log.Printf("Waking up CPE with URL: %s", origin)
-
-		_, err := http.Get(origin)
+		_, err := goha.NewClient(username, password).Get(origin)
 
 		if err != nil {
-			log.Printf("An error occurred with the CPE communication - %v", err)
 			http.Error(w, "An error occurred with the CPE communication!", http.StatusBadRequest)
 			return
 		}
+	}
+}
+
+func basicAuthHandler(handler func(string, string) http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		username, password, ok := r.BasicAuth()
+
+		if !ok {
+			w.Header().Add("WWW-Authenticate", `Basic realm="cwmp-proxy"`)
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+
+		handler(username, password).ServeHTTP(w, r)
 	}
 }
 
