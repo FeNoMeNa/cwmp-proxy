@@ -49,12 +49,13 @@ func TestProxyHandler(t *testing.T) {
 			compareReaders(t, c.want, r.Body)
 		})
 
-		p := NewProxy(1234, server.URL)
+		p, _ := NewProxy(1234, server.URL)
 
 		request, _ := http.NewRequest("GET", "http://github.com/", c.in)
 		recorder := httptest.NewRecorder()
-
 		p.handler().ServeHTTP(recorder, request)
+
+		p.Close()
 	}
 }
 
@@ -168,26 +169,6 @@ func TestBasicAuthHandlerWithoutCredentials(t *testing.T) {
 	if recorder.Code != http.StatusUnauthorized {
 		t.Errorf("expected status code: %v", http.StatusUnauthorized)
 		t.Errorf("     got status code: %v", recorder.Code)
-	}
-}
-
-func TestProxyAddressGenerating(t *testing.T) {
-	cases := []struct {
-		in   int
-		want string
-	}{
-		{8080, ":8080"},
-		{9090, ":9090"},
-	}
-
-	for _, c := range cases {
-		p := NewProxy(c.in, "http://fake.com/")
-		got := p.address()
-
-		if got != c.want {
-			t.Errorf("expected %v", c.want)
-			t.Errorf("     got %v", got)
-		}
 	}
 }
 

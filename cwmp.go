@@ -25,9 +25,9 @@ func (i *cwmpMessage) replaceConnectionUrl(host string) {
 
 	message := string(content)
 
-	url, err := getConnectionUrl(message)
+	url, ok := getConnectionUrl(message)
 
-	if err == nil {
+	if ok {
 		newUrl := fmt.Sprintf("http://%s/client?origin=%s", host, url)
 		message = strings.Replace(message, url, newUrl, 1)
 	}
@@ -39,15 +39,15 @@ func (i *cwmpMessage) replaceConnectionUrl(host string) {
 	i.req.ContentLength = int64(length)
 }
 
-func getConnectionUrl(message string) (string, error) {
+func getConnectionUrl(message string) (string, bool) {
 	index := strings.Index(message, "ConnectionRequestURL")
 
 	if index == -1 {
-		return "", fmt.Errorf("The ConnectionRequestURL is not found!")
+		return "", false
 	}
 
 	start := index + strings.Index(message[index:], "http")
 	end := start + strings.Index(message[start:], "<")
 
-	return message[start:end], nil
+	return message[start:end], true
 }

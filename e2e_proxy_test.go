@@ -75,7 +75,7 @@ func TestProxyServer(t *testing.T) {
 }
 
 func startProxy(port int, backend string) {
-	proxy := NewProxy(port, backend)
+	proxy, _ := NewProxy(port, backend)
 	go proxy.Start() // Run proxy server in background
 }
 

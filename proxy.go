@@ -3,11 +3,13 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/FeNoMeNa/goha"
 	"log"
+	"net"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+
+	"github.com/FeNoMeNa/goha"
 )
 
 var (
@@ -23,29 +25,51 @@ func main() {
 		return
 	}
 
-	log.Printf("The CWMP proxy server will be started on port %v\n", *port)
+	p, err := NewProxy(*port, *backend)
 
-	p := NewProxy(*port, *backend)
+	if err != nil {
+		log.Fatalf("The CWMP proxy cannot be created - %v", err)
+		return
+	}
 
-	log.Fatalln(p.Start())
+	err = p.Start()
+
+	if err != nil {
+		log.Fatalf("The CWMP proxy cannot be started - %v", err)
+		return
+	}
 }
 
 type Proxy struct {
-	port    int
-	backend *url.URL
+	listener net.Listener
+	backend  *url.URL
 }
 
-func NewProxy(port int, backend string) *Proxy {
-	u, _ := url.Parse(backend)
+func NewProxy(port int, backend string) (*Proxy, error) {
+	u, err := url.Parse(backend)
 
-	return &Proxy{port, u}
+	if err != nil {
+		return new(Proxy), err
+	}
+
+	l, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
+
+	if err != nil {
+		return new(Proxy), err
+	}
+
+	return &Proxy{l, u}, nil
 }
 
 func (p *Proxy) Start() error {
 	http.Handle("/", p.handler())
 	http.Handle("/client", basicAuthHandler(wakeupHandler))
 
-	return http.ListenAndServe(p.address(), nil)
+	return http.Serve(p.listener, nil)
+}
+
+func (p *Proxy) Close() error {
+	return p.listener.Close()
 }
 
 func (p *Proxy) handler() http.Handler {
@@ -90,8 +114,4 @@ func basicAuthHandler(handler func(string, string) http.HandlerFunc) http.Handle
 
 		handler(username, password).ServeHTTP(w, r)
 	}
-}
-
-func (p *Proxy) address() string {
-	return fmt.Sprintf(":%d", p.port)
 }

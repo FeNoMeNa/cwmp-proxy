@@ -77,11 +77,7 @@ func TestGetConnectionUrl(t *testing.T) {
 	}
 
 	for _, c := range cases {
-		got, err := getConnectionUrl(c.in)
-
-		if err != nil {
-			t.Errorf("getConnectionUrl: %v", err)
-		}
+		got, _ := getConnectionUrl(c.in)
 
 		if got != c.want {
 			t.Errorf("expected %v", c.want)
@@ -93,9 +89,9 @@ func TestGetConnectionUrl(t *testing.T) {
 func TestMissingConnectionUrl(t *testing.T) {
 	in := `<EventStruct><EventCode>0 BOOTSTRAP</EventCode><CommandKey/></EventStruct>`
 
-	_, err := getConnectionUrl(in)
+	_, ok := getConnectionUrl(in)
 
-	if err == nil {
+	if ok {
 		t.Fatalf("getConnectionUrl: error expected, none found")
 	}
 }
