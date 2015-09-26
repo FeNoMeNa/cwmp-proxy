@@ -40,11 +40,15 @@ func main() {
 	}
 }
 
+// Proxy represents an CWMP proxy server. There may be multiple backend endpoints that will accept
+// the incoming requests.
 type Proxy struct {
 	listener net.Listener
 	backend  *url.URL
 }
 
+// NewProxy creates and initializes a new CWMP proxy. If the desired port is not free an error
+// will be returned.
 func NewProxy(port int, backend string) (*Proxy, error) {
 	u, err := url.Parse(backend)
 
@@ -61,6 +65,8 @@ func NewProxy(port int, backend string) (*Proxy, error) {
 	return &Proxy{l, u}, nil
 }
 
+// Start starts the CWMP proxy. It registers two main http handlers, the first one is the proxy
+// handler, the second one is related with the CPE waking up.
 func (p *Proxy) Start() error {
 	http.Handle("/", p.handler())
 	http.Handle("/client", basicAuthHandler(wakeupHandler))
@@ -68,10 +74,15 @@ func (p *Proxy) Start() error {
 	return http.Serve(p.listener, nil)
 }
 
+// Close terminates the CWMP proxy. It simply closes the TCP server listener.
 func (p *Proxy) Close() error {
 	return p.listener.Close()
 }
 
+// handler is the core of the CWMP proxy. It uses the internal ReverseProxy to implement
+// the proxy logic that will send the incoming requests the backend servers. We should
+// notice that the handler modifies the received CWMP content. If the request contains a
+// connection url it will be replaced with a custom defined.
 func (p *Proxy) handler() http.Handler {
 	return &httputil.ReverseProxy{
 		Director: func(req *http.Request) {
@@ -84,6 +95,8 @@ func (p *Proxy) handler() http.Handler {
 	}
 }
 
+// wakeupHandler wakes up a concrete CPE. When the wakeupHandler endpoint is called with
+// a valid connection url, an authorized GET request is send to that url.
 func wakeupHandler(username, password string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		origin := r.FormValue("origin")
@@ -102,6 +115,9 @@ func wakeupHandler(username, password string) http.HandlerFunc {
 	}
 }
 
+// basicAuthHandler is a handler wrapper that will obtain the username and password encoded
+// with basic access authentication scheme. If the Authorization header is not provided the
+// wrapper will respond with 401 status code.
 func basicAuthHandler(handler func(string, string) http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		username, password, ok := r.BasicAuth()

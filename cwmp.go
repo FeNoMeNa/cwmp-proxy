@@ -8,14 +8,19 @@ import (
 	"strings"
 )
 
+// cwmpMessage represents a cwmp message. It wraps the current http request.
 type cwmpMessage struct {
 	req *http.Request
 }
 
+// newCwmpMessage creates and initializes a new cwmp message.
 func newCwmpMessage(req *http.Request) *cwmpMessage {
 	return &cwmpMessage{req}
 }
 
+// replaceConnectionUrl replaces the connection url assigned in the cwmp message.
+// If the current cwmp message does not contain connection url, the message is not
+// modified.
 func (i *cwmpMessage) replaceConnectionUrl(host string) {
 	content, err := ioutil.ReadAll(i.req.Body)
 
@@ -39,6 +44,7 @@ func (i *cwmpMessage) replaceConnectionUrl(host string) {
 	i.req.ContentLength = int64(length)
 }
 
+// getConnectionUrl fetches the connection url of the provided message if exists.
 func getConnectionUrl(message string) (string, bool) {
 	index := strings.Index(message, "ConnectionRequestURL")
 
