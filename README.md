@@ -1,5 +1,5 @@
 # cwmp-proxy
-It acts as  a reverse proxy for CWMP protocol, as well as a load balancer. It supports regular HTTP and HTTPS.
+It acts as  a reverse proxy for CWMP protocol, as well as a load balancer.
 
 The proxy itself is simply a net/http/httputil ReverseProxy handler.
 
