@@ -106,7 +106,8 @@ func wakeupHandler(username, password string) http.HandlerFunc {
 			return
 		}
 
-		resp, err := goha.NewClient(username, password).Get(origin)
+		c := goha.NewClient(username, password)
+		resp, err := c.Get(origin)
 
 		if err != nil {
 			http.Error(w, "An error occurred with the CPE communication!", http.StatusBadRequest)

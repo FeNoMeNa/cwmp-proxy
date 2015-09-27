@@ -8,6 +8,10 @@ Another important feature is the internal load balancing functionality that will
 ### Communication
 ![CWMP Proxy](doc/images/proxy.png)
 
+1. CPE sends a cwmp message to the cwmp-proxy. If the sent message contains a ConnectionRequestURL, it will be replaced with a proxy defined ConnectionRequestURL. For example: http://192.168.100.50:7547 will be replaced with http://127.0.0.1:8080/client?origin=http://192.168.100.50:7547, where 127.0.0.1:8080 is the proxy endpoint.
+
+2. The proxy server distributes the modified cwmp message to the next backend server from the round-robin circular queue. 
+
 ### CPE Wake up
 ![CPE Wake up](doc/images/wakeup.png)
 
