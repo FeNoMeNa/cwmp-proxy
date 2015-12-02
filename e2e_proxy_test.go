@@ -1,4 +1,4 @@
-package main
+package cwmpproxy
 
 import (
 	"bytes"
@@ -75,7 +75,7 @@ func TestProxyServer(t *testing.T) {
 }
 
 func startProxy(port int, backend string) {
-	proxy, _ := NewProxy(port, backend)
+	proxy, _ := New(port, backend)
 	go proxy.Start() // Run proxy server in background
 }
 

@@ -1,9 +1,7 @@
-package main
+package cwmpproxy
 
 import (
-	"flag"
 	"fmt"
-	"log"
 	"net"
 	"net/http"
 	"net/http/httputil"
@@ -11,34 +9,6 @@ import (
 
 	"github.com/FeNoMeNa/goha"
 )
-
-var (
-	port    = flag.Int("port", 0, "CWMP proxy port")
-	backend = flag.String("backend", "", "The backend ACS server")
-)
-
-func main() {
-	flag.Parse()
-
-	if *port == 0 || *backend == "" {
-		flag.PrintDefaults()
-		return
-	}
-
-	p, err := NewProxy(*port, *backend)
-
-	if err != nil {
-		log.Fatalf("The CWMP proxy cannot be created - %v", err)
-		return
-	}
-
-	err = p.Start()
-
-	if err != nil {
-		log.Fatalf("The CWMP proxy cannot be started - %v", err)
-		return
-	}
-}
 
 // Proxy represents an CWMP proxy server. There may be multiple backend endpoints that will accept
 // the incoming requests.
@@ -49,7 +19,7 @@ type Proxy struct {
 
 // NewProxy creates and initializes a new CWMP proxy. If the desired port is not free an error
 // will be returned.
-func NewProxy(port int, backend string) (*Proxy, error) {
+func New(port int, backend string) (*Proxy, error) {
 	u, err := url.Parse(backend)
 
 	if err != nil {

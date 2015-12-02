@@ -1,4 +1,4 @@
-package main
+package cwmpproxy
 
 import (
 	"bytes"
@@ -49,7 +49,7 @@ func TestProxyHandler(t *testing.T) {
 			compareReaders(t, c.want, r.Body)
 		})
 
-		p, _ := NewProxy(1234, server.URL)
+		p, _ := New(1234, server.URL)
 
 		request, _ := http.NewRequest("GET", "http://github.com/", c.in)
 		recorder := httptest.NewRecorder()
